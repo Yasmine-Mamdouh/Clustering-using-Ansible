@@ -4,4 +4,5 @@
 
   roles:
     - configure_os
+    - install_pacemaker
 

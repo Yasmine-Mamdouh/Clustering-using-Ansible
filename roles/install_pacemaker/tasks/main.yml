@@ -1,0 +1,50 @@
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: Install required packages for HA Cluster
+  ansible.builtin.apt:
+    name:
+      - drbd-utils
+      - dlm-controld
+      - gfs2-utils
+      - pacemaker
+      - corosync
+      - pcs
+      - pacemaker-resource-agents
+      - psmisc
+    state: present
+
+- name: Ensure pacemaker and corosync services are disabled
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: no
+  loop:
+    - pacemaker
+    - corosync
+
+- name: Enable and start pcsd service
+  ansible.builtin.systemd:
+    name: pcsd
+    state: started
+    enabled: yes
+
+- name: Set password for hacluster user
+  ansible.builtin.shell: echo "hacluster:haclusterpass123" | chpasswd
+  become: true
+
+- name: Gather service facts
+  ansible.builtin.service_facts:
+
+- name: Open required ports for HA Cluster (if using firewalld)
+  ansible.posix.firewalld:
+    port: "{{ item }}"
+    permanent: true
+    state: enabled
+    immediate: true
+  loop:
+    - 2224/tcp
+    - 3121/tcp
+    - 5405/udp
+  when: "'firewalld.service' in services and services['firewalld.service'].state == 'running'"
+  notify: reload firewalld
