@@ -1,0 +1,11 @@
+- name: Create Apache resource in Pacemaker
+  ansible.builtin.command: >
+    pcs resource create WebSite ocf:heartbeat:apache
+    configfile=/etc/apache2/apache2.conf
+    statusurl=http://localhost/server-status
+    op monitor interval=1min
+  run_once: true
+
+- name: Set Apache resource operation defaults
+  ansible.builtin.command: pcs resource op defaults timeout=240s
+  run_once: true

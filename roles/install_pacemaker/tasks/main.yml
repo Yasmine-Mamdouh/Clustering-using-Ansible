@@ -11,7 +11,9 @@
       - pacemaker
       - corosync
       - pcs
-      - pacemaker-resource-agents
+      - resource-agents-base
+      - resource-agents-common
+      - resource-agents-extra
       - psmisc
     state: present
 
