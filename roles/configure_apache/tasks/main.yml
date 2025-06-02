@@ -1,0 +1,35 @@
+- name: Install Apache
+  ansible.builtin.apt:
+    name: apache2
+    state: present
+    update_cache: true
+
+- name: Create Apache index page
+  ansible.builtin.copy:
+    dest: /var/www/html/index.html
+    content: "Welcome to the HA Cluster - Apache is running!\n"
+    owner: www-data
+    group: www-data
+    mode: '0644'
+
+- name: Create Apache server-status config
+  ansible.builtin.copy:
+    dest: /etc/apache2/conf-available/server-status.conf
+    content: |
+      <Location /server-status>
+          SetHandler server-status
+          Require local
+      </Location>
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Enable Apache server-status config
+  ansible.builtin.command: a2enconf server-status
+  args:
+    creates: /etc/apache2/conf-enabled/server-status.conf
+
+- name: Reload Apache to apply config changes
+  ansible.builtin.systemd:
+    name: apache2
+    state: reloaded
