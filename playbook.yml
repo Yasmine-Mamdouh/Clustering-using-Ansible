@@ -6,3 +6,4 @@
     - configure_os
     - install_pacemaker
     - setup_cluster
+    - create_floating_ip
