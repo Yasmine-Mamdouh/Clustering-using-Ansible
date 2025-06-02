@@ -1,0 +1,19 @@
+- name: Authenticate pcs on all nodes
+  command: pcs host auth node-ha-1 node-ha-2 -u hacluster -p haclusterpass123
+  run_once: true
+
+- name: Setup cluster
+  command: pcs cluster setup --force my_cluster node-ha-1 node-ha-2
+  run_once: true
+
+- name: Start and enable cluster
+  command: pcs cluster start --all
+  run_once: true
+
+- name: Enable cluster at boot
+  command: pcs cluster enable --all
+  run_once: true
+
+- name: Disable STONITH (fencing)
+  command: pcs property set stonith-enabled=false
+  run_once: true
