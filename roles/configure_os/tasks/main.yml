@@ -1,0 +1,58 @@
+- name: Set hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: Update /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    line: "{{ hostvars[item].ansible_host }} {{ item }}"
+  loop: "{{ groups['cluster_nodes'] }}"
+  when: "'ansible_host' in hostvars[item]"
+
+- name: Install chrony
+  ansible.builtin.apt:
+    name: chrony
+    state: present
+    update_cache: yes
+
+- name: Enable and start chrony
+  ansible.builtin.systemd:
+    name: chrony
+    state: started
+    enabled: yes
+
+- name: Ensure NetworkManager is installed
+  apt:
+    name: network-manager
+    state: present
+  become: true
+
+- name: Start and enable NetworkManager service
+  systemd:
+    name: NetworkManager
+    state: started
+    enabled: yes
+  become: true
+      
+- name: Configure static IP on ens37
+  community.general.nmcli:
+    conn_name: ens37
+    ifname: ens37
+    type: ethernet
+    ip4: "10.0.0.{{ ansible_hostname[-1] }}/24"
+    state: present
+    method4: manual
+  become: true
+
+- name: Check if ens37 connection is up
+  command: nmcli connection show --active
+  register: nmcli_active_connections
+  changed_when: false
+
+- name: Bring up ens37 connection if not up
+  community.general.nmcli:
+    conn_name: ens37
+    state: up
+  become: true
+  when: "'ens37' not in nmcli_active_connections.stdout"
+

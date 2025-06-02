@@ -1,0 +1,7 @@
+- name: Setup Pacemaker Cluster
+  hosts: cluster_nodes
+  become: yes
+
+  roles:
+    - configure_os
+
