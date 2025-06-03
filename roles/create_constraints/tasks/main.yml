@@ -1,0 +1,9 @@
+- name: Add colocation constraint (WebSite with ClusterIP)
+  ansible.builtin.command: >
+    pcs constraint colocation add WebSite with ClusterIP INFINITY
+  run_once: true
+
+- name: Add order constraint (ClusterIP before WebSite)
+  ansible.builtin.command: >
+    pcs constraint order ClusterIP then WebSite
+  run_once: true
