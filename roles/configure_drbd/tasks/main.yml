@@ -1,0 +1,12 @@
+---
+- name: Include DRBD config task
+  include_tasks: create_config.yml
+
+- name: Initialize DRBD
+  include_tasks: initialize.yml
+
+- name: Force primary node
+  include_tasks: force_primary.yml
+
+- name: Format and mount DRBD device
+  include_tasks: format_mount.yml

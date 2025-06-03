@@ -1,0 +1,4 @@
+- name: Force node to be primary
+  ansible.builtin.command: drbdadm primary --force wwwdata
+  run_once: true
+

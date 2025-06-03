@@ -1,0 +1,18 @@
+- name: Check if DRBD meta data exists
+  ansible.builtin.command: drbdadm dump-md wwwdata
+  register: drbd_dump
+  ignore_errors: true
+  run_once: true
+
+- name: Create DRBD metadata if not exists
+  ansible.builtin.command: drbdadm create-md wwwdata --force
+  when: drbd_dump.rc != 0
+  run_once: true
+
+- name: Load DRBD kernel module
+  ansible.builtin.command: modprobe drbd
+  run_once: true
+
+- name: Bring up DRBD resource
+  ansible.builtin.command: drbdadm up wwwdata
+  run_once: true

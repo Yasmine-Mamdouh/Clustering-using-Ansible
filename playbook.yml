@@ -10,3 +10,4 @@
     - configure_apache
     - create_apache_resource
     - create_constraints
+    - configure_drbd

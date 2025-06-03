@@ -1,0 +1,29 @@
+- name: Create filesystem on DRBD device
+  ansible.builtin.command: mkfs.xfs /dev/drbd1
+  run_once: true
+
+- name: Create mount point
+  ansible.builtin.file:
+    path: /mnt/drbd
+    state: directory
+
+- name: Mount DRBD device
+  ansible.builtin.mount:
+    path: /mnt/drbd
+    src: /dev/drbd1
+    fstype: xfs
+    state: mounted
+  run_once: true
+
+- name: Create test file on DRBD volume
+  ansible.builtin.copy:
+    dest: /mnt/drbd/index.html
+    content: "This is my site - DRBD\n"
+    mode: '0644'
+  run_once: true
+
+- name: Unmount DRBD volume
+  ansible.builtin.mount:
+    path: /mnt/drbd
+    state: unmounted
+  run_once: true

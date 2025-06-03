@@ -1,0 +1,46 @@
+- name: Create physical volumes
+  ansible.builtin.command: pvcreate /dev/sdb
+  args:
+    creates: /dev/sdb
+
+- name: Create volume group
+  ansible.builtin.command: vgcreate drbd-vg /dev/sdb
+  args:
+    creates: /dev/drbd-vg
+
+- name: Create logical volume for data
+  ansible.builtin.command: lvcreate -L 10G -n drbd-data /dev/drbd-vg
+  args:
+    creates: /dev/drbd-vg/drbd-data
+
+- name: Create logical volume for metadata
+  ansible.builtin.command: lvcreate -L 5G -n drbd-meta /dev/drbd-vg
+  args:
+    creates: /dev/drbd-vg/drbd-meta
+
+- name: Create DRBD resource config file
+  ansible.builtin.copy:
+    dest: /etc/drbd.d/wwwdata.res
+    content: |
+      resource "wwwdata" {
+          protocol C;
+
+          net {
+              allow-two-primaries;
+          }
+
+          on node-ha-1 {
+              device     /dev/drbd1;
+              disk       /dev/drbd-vg/drbd-data;
+              address    10.0.0.1:7789;
+              meta-disk  /dev/drbd-vg/drbd-meta;
+          }
+
+          on node-ha-2 {
+              device     /dev/drbd1;
+              disk       /dev/drbd-vg/drbd-data;
+              address    10.0.0.2:7789;
+              meta-disk  /dev/drbd-vg/drbd-meta;
+          }
+      }
+  notify: restart drbd
