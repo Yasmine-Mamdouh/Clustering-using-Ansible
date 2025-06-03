@@ -1,0 +1,24 @@
+- name: Get a copy of cluster config
+  ansible.builtin.command: pcs cluster cib drbd_cfg
+  run_once: true
+
+- name: Configure DRBD device resource in pcs
+  ansible.builtin.command: >
+    pcs -f drbd_cfg resource create WebData ocf:linbit:drbd
+    drbd_resource=wwwdata
+    op monitor interval=60s
+  run_once: true
+
+- name: Create promotable (Master/Slave) clone resource
+  ansible.builtin.command: >
+    pcs -f drbd_cfg resource promotable WebData
+    master-max=1 master-node-max=1 clone-max=2 clone-node-max=1 notify=true
+  run_once: true
+
+- name: Push DRBD resource to cluster
+  ansible.builtin.command: pcs cluster cib-push drbd_cfg --config
+  run_once: true
+
+- name: Load drbd kernel module on all nodes
+  ansible.builtin.shell: echo drbd | tee /etc/modules-load.d/drbd.conf
+  become: true

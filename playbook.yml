@@ -11,3 +11,4 @@
     - create_apache_resource
     - create_constraints
     - configure_drbd
+    - create_drbd_promotable
