@@ -1,0 +1,35 @@
+- name: Get a copy of cluster config for filesystem
+  ansible.builtin.command: pcs cluster cib fs_cfg
+  run_once: true
+
+- name: Create filesystem mount resource
+  ansible.builtin.command: >
+    pcs -f fs_cfg resource create WebFS Filesystem
+    device="/dev/drbd1" directory="/var/www/html" fstype="xfs"
+  run_once: true
+
+- name: Create colocation constraint between WebFS and WebData-clone
+  ansible.builtin.command: >
+    pcs -f fs_cfg constraint colocation add
+    WebFS with WebData-clone INFINITY with-rsc-role=Master
+  run_once: true
+
+- name: Create order constraint promote WebData-clone then start WebFS
+  ansible.builtin.command: >
+    pcs -f fs_cfg constraint order
+    promote WebData-clone then start WebFS
+  run_once: true
+
+- name: Create colocation constraint between WebSite and WebFS
+  ansible.builtin.command: >
+    pcs -f fs_cfg constraint colocation add WebSite with WebFS INFINITY
+  run_once: true
+
+- name: Create order constraint WebFS then WebSite
+  ansible.builtin.command: >
+    pcs -f fs_cfg constraint order WebFS then WebSite
+  run_once: true
+
+- name: Push filesystem config to cluster
+  ansible.builtin.command: pcs cluster cib-push fs_cfg --config
+  run_once: true

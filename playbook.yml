@@ -12,3 +12,5 @@
     - create_constraints
     - configure_drbd
     - create_drbd_promotable
+    - configure_filesystem
+
