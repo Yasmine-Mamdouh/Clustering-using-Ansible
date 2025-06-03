@@ -26,11 +26,9 @@ git clone https://github.com/Yasmine-Mamdouh/Clustering-using-Ansible.git
 cd Clustering-using-Ansible
 ```
 
-
 ### 2. Edit inventory
 
 ```ini
-# inventory.ini
 [cluster_nodes]
 node-ha-1 ansible_connection=local ansible_host=node-1-ip hostname=node-ha-1
 node-ha-2 ansible_host=node-2-ip hostname=node-ha-2
@@ -45,7 +43,7 @@ ansible_user=user
 ansible-playbook -i inventory.ini playbook.yml
 ```
 
-### 4. **Validate
+### 4. Validate
 
 - Check cluster status:
 
