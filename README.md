@@ -76,4 +76,11 @@ curl http://<Cluster-IP>
   - Run `drbdadm down <res>`, fix config, then `drbdadm create-md <res>`.
 - Use `journalctl -xeu drbd.service` for deeper errors.
 
+## 📚 Reference
+
+This project follows the official guide:
+
+- [Clusters from Scratch — Pacemaker/Corosync/DRBD Documentation](https://clusterlabs.org/projects/pacemaker/doc/deprecated/en-US/Pacemaker/1.1/html/Clusters_from_Scratch/index.html) from ClusterLabs.
+
+
 ---
